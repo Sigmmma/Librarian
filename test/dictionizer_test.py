@@ -79,9 +79,11 @@ def dictionizerTests():
             result_dict = dictionizer.block_to_dict(test_block)
 
             scaling_one = test_block.desc[
-                test_block.desc['NAME_MAP']['scaled_float']]['UNIT_SCALE']
+                test_block.desc['NAME_MAP']['scaled_float']
+                ]['UNIT_SCALE']
             scaling_two = test_block.desc[
-                test_block.desc['NAME_MAP']['scaled_int']]['UNIT_SCALE']
+                test_block.desc['NAME_MAP']['scaled_int']
+                ]['UNIT_SCALE']
 
             assert_that(
                 result_dict['scaled_float'],
