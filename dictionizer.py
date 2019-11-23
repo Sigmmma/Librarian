@@ -16,7 +16,7 @@ def block_to_dict(block):
 
         # if a block, call this same method on it to also convert it to a dict.
         if isinstance(item, Block):
-            item = to_dict(item)
+            item = block_to_dict(item)
         # If primitive type handle generically.
         else:
             item *= desc[idx].get("UNIT_SCALE", 1)
