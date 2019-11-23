@@ -75,7 +75,7 @@ def dictionizerTests():
             assert_that(result_dict.get('invisible_float', None), none())
 
         @it('Handles unit scaling')
-        def noInvis():
+        def unitScale():
             result_dict = dictionizer.block_to_dict(test_block)
 
             scaling_one = test_block.desc[
