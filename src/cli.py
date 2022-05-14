@@ -22,13 +22,40 @@ parser = ArgumentParser(
 parser.add_argument('-v', '--version', action='version', version='0.0.0-dev')
 
 subparser = parser.add_subparsers(dest='command')
-
 cmd_config = subparser.add_parser('config', description='''
     Prints Librarian config for the current environment, including where that
     configuration is coming from.''',
 )
-cmd_export = subparser.add_parser('export', description='Exports tags to YAML')
-cmd_import = subparser.add_parser('import', description='Imports tags from YAML')
+cmd_export = subparser.add_parser('export', description='Exports Halo tags to YAML')
+cmd_import = subparser.add_parser('import', description='Imports Halo tags from YAML')
+
+cmd_export.add_argument('-c', '--console', action='store_true',
+    help='output YAML to the console instead of to a file'
+)
+
+for cmd in [cmd_export, cmd_import]:
+    if cmd is cmd_export:
+        filetype = 'tag'
+    if cmd is cmd_import:
+        filetype = 'YAML'
+
+    cmd.add_argument('files', type=Path, nargs='*',
+        help=f'A {filetype} file, or directory containing {filetype} files'
+    )
+
+    cmd.add_argument('-d', '--dryrun', action='store_true',
+        help='print operations without actually doing anything'
+    )
+    cmd.add_argument('-s', '--silent', action='store_true',
+        help='do not print anything'
+    )
+
+for cmd in [cmd_config, cmd_export, cmd_import]:
+    cmd.add_argument('-f', '--filter', type=Path,
+        help='specify a filter file for excluding files and/or directories'
+    )
+    cmd.add_argument('-o', '--outdir', type=Path,
+        help='specify directory to output processed files to')
 
 if __name__ == '__main__':
     args = parser.parse_args()
