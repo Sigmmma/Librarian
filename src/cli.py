@@ -1,5 +1,8 @@
 from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pathlib import Path
+from sys import exit
+
+from config import LibConfig
 
 class CmdHelpFormatter(ArgumentDefaultsHelpFormatter):
     '''
@@ -62,4 +65,19 @@ if __name__ == '__main__':
 
     if (args.command is None):
         parser.print_help()
+        exit(0)
+
+    config = LibConfig(
+        console=getattr(args, 'console', False),
+        dryrun=getattr(args, 'dryrun', False),
+        filter=args.filter,
+        silent=getattr(args, 'silent', False),
+        tagdir= args.outdir if args.command == 'export' else None,
+        yamldir=args.outdir if args.command == 'import' else None,
+    )
+
+    if args.command == 'config':
+        print(config)
+        exit(0)
+
 
