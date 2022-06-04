@@ -2,6 +2,7 @@ from argparse import ArgumentParser, ArgumentDefaultsHelpFormatter
 from pathlib import Path
 from sys import exit
 
+from api import exportToYaml
 from config import LibConfig
 
 class CmdHelpFormatter(ArgumentDefaultsHelpFormatter):
@@ -80,4 +81,5 @@ if __name__ == '__main__':
         print(config)
         exit(0)
 
-
+    if args.command == 'export':
+        exportToYaml(args.files)
