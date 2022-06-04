@@ -2,8 +2,10 @@
 Functions for serializing Halo files out to YAML and binary.
 '''
 from pathlib import Path
+from typing import Any
 
 from construct import Container, EnumIntegerString, Struct
+import yaml
 
 import router
 
@@ -13,11 +15,20 @@ import router
 # TODO all transforms should happen in one place so we don't lose track of them
 
 def serializeFile(file: Path):
+    '''Serializes the given file.
+    Returns a dict mapping filenames to blobs of data to write into them.
+
+    Large binary block data is separated from human-readable data, since
+    binary data can't be cleanly diffed by git.
+    '''
     construct_struct = router.getStructForFile(file)
     parsed_file = construct_struct.parse_file(file)
 
     yaml_data_dict = _buildYamlDict(construct_struct, parsed_file)
-    return yaml_data_dict
+    yaml_data = yaml.safe_dump(yaml_data_dict)
+    return {
+        f'{file.name}.yaml': yaml_data,
+    }
 
 def _buildYamlDict(struct: Struct, parsed):
     '''
@@ -30,7 +41,7 @@ def _buildYamlDict(struct: Struct, parsed):
     otherwise user-ignored tag fields are slightly transformed so they sort
     to the bottom of the YAML file.
     '''
-    yaml_data = dict()
+    yaml_data: dict[str,Any] = dict()
 
     # Building on a private value isn't great, but this is the only way
     # to get the list of fields on a Construct struct.
@@ -46,7 +57,7 @@ def _buildStructValue(value):
     This function is built to be called recursively for nested structures.
     '''
     if isinstance(value, Container):
-        data = dict()
+        data: dict[str,Any] = dict()
         for key, val in value.items():
             # _io is an internal Construct thing we don't care about
             if key != '_io':

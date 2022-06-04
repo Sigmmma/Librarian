@@ -7,21 +7,23 @@ through these functions.
 from pathlib import Path
 from typing import Callable
 
-import yaml
-
 from serialize import serializeFile
 
+# TODO modify this to take a single file too?
 def exportToYaml(paths: 'list[Path]'):
-    'paths is an array of Paths either to files or directories'
-    for file in filesInPathList(paths):
-        data = serializeFile(file)
-        outfile = Path(str(file) + '.yaml')
-        with open(outfile, 'w') as f:
-            f.write(yaml.safe_dump(data))
+    '''Exports all the relevant files in the given list of paths.
+    Each path can point to a directory or a file. Directories are
+    recursively resolved into relevant files.
+    '''
+    for file_path in filesInPathList(paths):
+        out_map = serializeFile(file_path)
+        for file_name, data in out_map.items():
+            with open(file_path.parent.joinpath(file_name), 'w') as file:
+                file.write(data)
 
 def filesInPathList(
     paths: 'list[Path]',
-    include_filter: Callable[[Path], bool] = None
+    include_filter: Callable[[Path],bool] = None
 ):
     '''Recursively generates a list of files from a list of paths.
     A filter can be specified to optionally restrict the result set.
