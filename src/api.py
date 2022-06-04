@@ -9,14 +9,12 @@ from typing import Callable
 
 import yaml
 
-import router
+from serialize import serializeFile
 
 def exportToYaml(paths: 'list[Path]'):
     'paths is an array of Paths either to files or directories'
     for file in filesInPathList(paths):
-        struct = router.getStructForFile(file)
-        parsed = struct.parse_file(file)
-        data = buildYamlData(struct, parsed)
+        data = serializeFile(file)
         outfile = Path(str(file) + '.yaml')
         with open(outfile, 'w') as f:
             f.write(yaml.safe_dump(data))
@@ -38,30 +36,3 @@ def filesInPathList(
                     yield file
         elif include_filter(path):
             yield path
-
-# TODO extract this to its own module
-from construct import Container, EnumIntegerString
-
-def buildYamlData(struct, parsed):
-    data = dict()
-
-    # Building on private values? Oh yeah!
-    for field in struct._subcons:
-        data[field] = buildStructValue(getattr(parsed, field))
-
-    return data
-
-def buildStructValue(value):
-    if isinstance(value, Container):
-        return buildContainer(value)
-    if isinstance(value, EnumIntegerString):
-        value = str(value)
-    return value
-
-def buildContainer(container):
-    data = dict()
-    for key,val in container.items():
-        # Better believe we're relying on more private values.
-        if key != '_io':
-            data[key] = buildStructValue(val)
-    return data
